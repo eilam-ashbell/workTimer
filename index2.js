@@ -2,13 +2,6 @@ const projectNameInput = document.getElementById("project-name-input");
 const estTimeInput = document.getElementById("project-time-input");
 const worksWrapper = document.getElementById("works-wrapper");
 
-document
-  .getElementById("project-form")
-  .addEventListener("submit", function (e) {
-    e.preventDefault();
-    add();
-  });
-
 String.prototype.toHHMMSS = function () {
   var sec_num = parseInt(this, 10); // don't forget the second param
   var hours = Math.floor(sec_num / 3600);
@@ -96,16 +89,18 @@ function addProjectLine(project) {
 }
 
 function startTimer(id) {
-  if (typeof id != "number") {
+  if (typeof(id) != 'number') {
     id = id.split("-");
-    id = id[1];
-  }
+    id = id[1]
+}
   const timer = {
     timerStart: new Date().getTime(),
     timerEnd: new Date().getTime(),
     intervalId: setInterval(() => intervalFunction(id, timer), 1000),
   };
-  document.getElementById(`pause-${id}`).addEventListener("click", function() {stopTimer(id, timer)}, {once: true});
+
+  document.getElementById(`pause-${id}`).addEventListener("click", () => stopTimer(id, timer));
+  playPauseToggle(id);
   const playBtn = document.getElementById(`play-${id}`);
   const pauseBtn = document.getElementById(`pause-${id}`);
   playBtn.classList.add("hide");
@@ -113,34 +108,34 @@ function startTimer(id) {
 }
 
 function intervalFunction(id, timer) {
-  timer.timerEnd = new Date().getTime();
-  timer.timerCalc = Math.floor((timer.timerEnd - timer.timerStart) / 1000);
-  document.getElementById(`timer-${id}`).innerText = timer.timerCalc.toString().toHHMMSS();
+    timer.timerEnd = new Date().getTime();
+    timer.timerCalc = Math.floor((timer.timerEnd - timer.timerStart) / 1000);
+    console.log(timer.timerCalc)
+    document.getElementById(`timer-${id}`).innerText = timer.timerCalc.toString().toHHMMSS();
 }
 
 function stopTimer(id, timer) {
-  clearInterval(timer.intervalId);
-  if (timer.timerCalc === undefined) {
-      timer.timerCalc = 0
-  }
-  const thisProject = JSON.parse(localStorage.getItem("projectList")).filter((item) => item.id == id).pop();
-  const localList = JSON.parse(localStorage.getItem("projectList")).filter((item) => item.id != id);
-  thisProject.counters.push(timer);
-  localList.push(thisProject);
-  localStorage.setItem("projectList", JSON.stringify(localList));
-  const playBtn = document.getElementById(`play-${id}`);
-  const pauseBtn = document.getElementById(`pause-${id}`);
-  playBtn.classList.remove("hide");
-  pauseBtn.classList.add("hide");
-  calcTimeOnPause(id);
+    console.log(timer)
+    clearInterval(timer.intervalId);
+    const thisProject = JSON.parse(localStorage.getItem("projectList")).filter((item) => item.id == id).pop();
+    const localList = JSON.parse(localStorage.getItem("projectList")).filter((item) => item.id != id);
+    thisProject.counters.push(timer)
+    localList.push(thisProject)
+    localStorage.setItem("projectList", JSON.stringify(localList));
+    // playPauseToggle(id);
+    const playBtn = document.getElementById(`play-${id}`);
+    const pauseBtn = document.getElementById(`pause-${id}`);
+    playBtn.classList.remove("hide");
+    pauseBtn.classList.add("hide");
+    calcTimeOnPause(id)
 }
 
 function calcTimeOnPause(id) {
-  document.getElementById(`timer-${id}`).innerText = "00:00:00";
-  const thisProject = JSON.parse(localStorage.getItem("projectList"))
-    .filter((item) => item.id == id)
-    .pop();
-  document.getElementById(`sum-timer-${id}`).innerText = calcTime(thisProject);
+  const timerDisplay = document.getElementById(`timer-${id}`);
+  const timerSumDisplay = document.getElementById(`sum-timer-${id}`);
+  timerDisplay.innerText = "00:00:00";
+  const thisProject = JSON.parse(localStorage.getItem("projectList")).filter((item) => item.id == id).pop()
+  timerSumDisplay.innerText = calcTime(thisProject);
 }
 
 function calcTime(project) {

@@ -20,18 +20,26 @@
                 <div class="inputs-wrapper">
                     <div class="form-element-wrapper">
                         <label for="project-name-input">project name</label>
-                        <input type="text" id="project-name-input" />
+                        <input type="text" id="project-name-input" placeholder="type a new project" minlength="2" required/>
                     </div>
                     <div class="form-element-wrapper">
                         <label for="project-time-input">est. time</label>
-                        <input type="time" id="project-time-input" step="900" />
+                        <input type="time" id="project-time-input" step="900" value="01:00" required/>
                     </div>
                 </div>
                 <div class="form-element-wrapper">
-                    <i class="fa-solid fa-circle-plus fa-3x" onclick="add()"></i>
-                    <!-- <i class="fa-solid fa-circle-play fa-3x" onclick="add()"></i> -->
+                    <button id="addBtn" type="submit">
+                        <i class="fa-solid fa-circle-plus fa-3x"></i>
+                        <!-- <i class="fa-solid fa-circle-play fa-3x" onclick="add()"></i> -->
+                    </button>
                 </div>
             </form>
+        </div>
+        <div class="works-labels-wrapper">
+            <span>project</span>
+            <span>est.</span>
+            <span>total</span>
+            <span>current</span>
         </div>
         <div class="works-wrapper" id="works-wrapper">
             <!-- <div class="work-line" id="1">
@@ -48,7 +56,6 @@
                     <div class="form-element-wrapper">
                         <span class="project-working-time-span" id="timer-0">00:00:00</span>
                     </div>
-                    
                 </div>
                 <div class="form-element-wrapper">
                     <i class="fa-solid fa-circle-pause fa-2x" id="0"></i>
