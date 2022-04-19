@@ -1,0 +1,101 @@
+body {
+    background-color: aliceblue;
+    padding: 0rem 2rem 0rem 2rem;
+    margin: 0;
+    box-sizing: border-box;
+}
+.container {
+    max-width: 1080px;
+    margin: auto;
+}
+.project-form-wrapper {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 0rem 0rem 1rem 1rem;
+    box-shadow: 0.125rem 0.125rem 0.5rem rgba(0, 0, 0, 0.05);
+}
+.project-form {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content:space-between;
+}
+.inputs-wrapper {
+    display: flex;
+    column-gap: 1rem;
+}
+.form-element-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+.form-element-wrapper > label {
+    font-size: 1rem;
+    color: gray;
+    margin-bottom: 0.25rem;
+    margin-left: 0.25rem;
+}
+.form-element-wrapper > input {
+    height: 1.5rem;
+    font-size: 1rem;
+    padding: 0.25rem;
+}
+
+input[type="text"] {
+    width: 20rem;
+}
+input[type="time"] {
+    font-family: unset;
+}
+#timer-display {
+    height: 1.5rem;
+    font-size: 1rem;
+    padding-top: 0.5rem;
+}
+
+.form-element-wrapper:last-child {
+    justify-content: center;
+}
+.fa-circle-play {
+    color: lightskyblue;
+    cursor: pointer;
+}
+.fa-circle-plus {
+    color: lightskyblue;
+    cursor: pointer;
+}
+.works-wrapper {
+    display: flex;
+    flex-direction: column-reverse;
+    row-gap: 0.5rem;
+    margin-top: 4rem;
+}
+.work-line{
+    display: flex;
+    column-gap: 1rem;
+    justify-items: center;
+    align-items: center;
+    justify-content: space-between;
+    background-color: white;
+    padding: 1.5rem 2rem 1.5rem 2rem;
+    border-radius: 1rem 1rem 1rem 1rem;
+}
+.project-name-span {
+    width: 20rem;
+    padding: 0.25rem;
+}
+.project-est-span {
+    padding: 0.25rem;
+    min-width: 3rem;
+    text-align: center;
+}
+.project-working-time-span {
+    margin-left: 6rem;
+}
+.fa-circle-pause {
+    color: lightsalmon;
+    cursor: pointer;
+}
+
+.hide::before {
+    display: none;
+}
