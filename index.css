@@ -24,6 +24,7 @@ body {
     display: flex;
     column-gap: 2rem;
     justify-items: stretch;
+    position: relative;
 }
 .form-element-wrapper {
     display: flex;
@@ -45,6 +46,7 @@ body {
 .form-element-wrapper > span {
     min-width: 4rem;
     padding: 0.25rem;
+    text-align: center;
 }
 #addBtn {
     background-color: transparent;
@@ -126,7 +128,7 @@ input[type="time"] {
     text-align: center;
     color: rgba(0, 0, 0, 0.3);
 }
-.works-labels-wrapper > span:first-child{
+.works-labels-wrapper > #list-label-project{
     width: 16rem;
     text-align: start;
 }
@@ -157,9 +159,10 @@ input[type="time"] {
     box-shadow: 0.125rem 0.125rem 0.5rem rgba(0, 0, 0, 0.05);
 }
 
-.project-name-span {
+.form-element-wrapper > .project-name-span {
     width: 16rem;
     padding: 0.25rem;
+    text-align: left;
 }
 .project-est-span {
     padding: 0.25rem;
@@ -177,4 +180,24 @@ input[type="time"] {
 
 .hide::before {
     display: none;
+}
+
+.fa-trash {
+    opacity: 0;
+    position: absolute;
+    top: 8px;
+    left: -4rem;
+    color: rgba(255, 0, 0, 0.2);
+    cursor: pointer;
+    transition: ease-in-out 200ms;
+    transition-property: color, opacity;
+}
+
+.work-line:hover .fa-trash {
+    color: rgba(255, 0, 0, 0.2);
+    opacity: 1;
+}
+.work-line:hover .fa-trash:hover {
+    color: rgba(255, 0, 0, 0.8);
+    opacity: 1;
 }

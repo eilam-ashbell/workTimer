@@ -73,7 +73,15 @@ function addToLocalStorage(project) {
 
 function addProjectLine(project) {
   const projectLine = `<div class="work-line" id="${project.id}">
-      <div class="inputs-wrapper"><div class="form-element-wrapper"><span class="project-name-span">${
+      <div class="inputs-wrapper">
+      <i class="fa-solid fa-trash" id="del-${
+        project.id
+      }" onclick="deletProject(this)"></i>
+      <div class="form-element-wrapper"><span class="project-date-span">${new Date(
+        project.dateCreated
+      ).getDate()}/${new Date(project.dateCreated).getMonth()}</span>
+      </div>
+      <div class="form-element-wrapper"><span class="project-name-span">${
         project.name
       }</span>
       </div><div class="form-element-wrapper"><span class="project-est-span" id="est-${
@@ -91,7 +99,9 @@ function addProjectLine(project) {
         project.id
       }"></i><i class="fa-solid fa-circle-play fa-2x" id="play-${
     project.id
-  }" onclick="startTimer(this.id)"></i></div></div>`;
+  }" onclick="startTimer(this.id)"></i>
+  </div>
+  </div>`;
   worksWrapper.innerHTML += projectLine;
 }
 
@@ -105,7 +115,13 @@ function startTimer(id) {
     timerEnd: new Date().getTime(),
     intervalId: setInterval(() => intervalFunction(id, timer), 1000),
   };
-  document.getElementById(`pause-${id}`).addEventListener("click", function() {stopTimer(id, timer)}, {once: true});
+  document.getElementById(`pause-${id}`).addEventListener(
+    "click",
+    function () {
+      stopTimer(id, timer);
+    },
+    { once: true }
+  );
   const playBtn = document.getElementById(`play-${id}`);
   const pauseBtn = document.getElementById(`pause-${id}`);
   playBtn.classList.add("hide");
@@ -115,16 +131,22 @@ function startTimer(id) {
 function intervalFunction(id, timer) {
   timer.timerEnd = new Date().getTime();
   timer.timerCalc = Math.floor((timer.timerEnd - timer.timerStart) / 1000);
-  document.getElementById(`timer-${id}`).innerText = timer.timerCalc.toString().toHHMMSS();
+  document.getElementById(`timer-${id}`).innerText = timer.timerCalc
+    .toString()
+    .toHHMMSS();
 }
 
 function stopTimer(id, timer) {
   clearInterval(timer.intervalId);
   if (timer.timerCalc === undefined) {
-      timer.timerCalc = 0
+    timer.timerCalc = 0;
   }
-  const thisProject = JSON.parse(localStorage.getItem("projectList")).filter((item) => item.id == id).pop();
-  const localList = JSON.parse(localStorage.getItem("projectList")).filter((item) => item.id != id);
+  const thisProject = JSON.parse(localStorage.getItem("projectList"))
+    .filter((item) => item.id == id)
+    .pop();
+  const localList = JSON.parse(localStorage.getItem("projectList")).filter(
+    (item) => item.id != id
+  );
   thisProject.counters.push(timer);
   localList.push(thisProject);
   localStorage.setItem("projectList", JSON.stringify(localList));
@@ -164,4 +186,15 @@ function playPauseToggle(id) {
   const pauseBtn = document.getElementById(`pause-${id}`);
   playBtn.classList.toggle("hide");
   pauseBtn.classList.toggle("hide");
+}
+
+function deletProject(element) {
+  let id = element.id.split("-");
+  id = id[1];
+  const withoutProject = JSON.parse(localStorage.getItem("projectList")).filter(
+    (item) => item.id != id
+  );
+  localStorage.setItem("projectList", JSON.stringify(withoutProject));
+  const workLine = element.parentElement.parentElement;
+  workLine.remove();
 }
