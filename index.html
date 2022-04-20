@@ -20,50 +20,60 @@
                 <div class="inputs-wrapper">
                     <div class="form-element-wrapper">
                         <label for="project-name-input">project name</label>
-                        <input type="text" id="project-name-input" placeholder="type a new project" minlength="2" required/>
+                        <input type="text" id="project-name-input" placeholder="type a new project" minlength="2"
+                            required />
                     </div>
                     <div class="form-element-wrapper">
                         <label for="project-time-input">est. time</label>
-                        <input type="time" id="project-time-input" step="900" value="01:00" required/>
+                        <input type="time" id="project-time-input" step="900" value="01:00" required />
                     </div>
                 </div>
                 <div class="form-element-wrapper">
                     <button id="addBtn" type="submit">
                         <i class="fa-solid fa-circle-plus fa-3x"></i>
-                        <!-- <i class="fa-solid fa-circle-play fa-3x" onclick="add()"></i> -->
                     </button>
                 </div>
             </form>
         </div>
         <div class="works-labels-wrapper">
+            <span id="list-label-date">$</span>
             <span id="list-label-date">date</span>
             <span id="list-label-project">project</span>
             <span id="list-label-est">est.</span>
-            <span  id="list-label-total">total</span>
-            <span  id="list-label-current">current</span>
+            <span id="list-label-total">total</span>
+            <span id="list-label-current">current</span>
         </div>
         <div class="works-wrapper" id="works-wrapper">
-            <!-- <div class="work-line" id="1">
+            <div class="work-line checked" id="${project.id}">
                 <div class="inputs-wrapper">
                     <div class="form-element-wrapper">
-                        <span class="project-name-span">this is some project name</span>
+                        <div class="round">
+                            <input type="checkbox" id="checkbox-${project.id}" />
+                            <label for="checkbox-${project.id}"></label>
+                          </div>
                     </div>
                     <div class="form-element-wrapper">
-                        <span class="project-est-span">00:00</span>
+                        <span class="project-date-span">20/12</span>
                     </div>
                     <div class="form-element-wrapper">
-                        <span class="project-sum-time-span" id="timer-0">00:00:00</span>
+                        <span class="project-name-span">project example</span>
                     </div>
                     <div class="form-element-wrapper">
-                        <span class="project-working-time-span" id="timer-0">00:00:00</span>
+                        <span class="project-est-span" id="est-${project.id}">01:30</span>
+                    </div>
+                    <div class="form-element-wrapper">
+                        <span class="project-sum-time-span" id="sum-timer-${project.id}">00:00:00</span>
+                    </div>
+                    <div class="form-element-wrapper">
+                        <span class="project-working-time-span" id="timer-${project.id}">00:00:00</span>
                     </div>
                 </div>
                 <div class="form-element-wrapper">
-                    <i class="fa-solid fa-circle-pause fa-2x" id="0"></i>
-                    <i class="fa-solid fa-circle-play fa-2x hide" id="0"></i> 
+                    <i class="fa-solid fa-circle-pause fa-2x hide" id="pause-${project.id}"></i>
+                    <i class="fa-solid fa-circle-play fa-2x" id="play-${project.id}" onclick="startTimer(this.id)"></i>
                 </div>
-                </div>
-            </div> -->
+                <i class="fa-solid fa-trash" id="del-${project.id}" onclick=""></i>
+            </div>
         </div>
     </div>
 </body>

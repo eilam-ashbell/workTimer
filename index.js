@@ -32,6 +32,7 @@ function onPageLoad() {
   if (projectList != null) {
     for (let proj of projectList) {
       addProjectLine(proj);
+      changePayed(proj)
     }
   }
 }
@@ -48,6 +49,7 @@ function Project() {
   this.id = Project.id;
   this.dateCreated = new Date().toISOString();
   this.counters = [];
+  this.isPayed = false
 }
 
 function add() {
@@ -74,9 +76,14 @@ function addToLocalStorage(project) {
 function addProjectLine(project) {
   const projectLine = `<div class="work-line" id="${project.id}">
       <div class="inputs-wrapper">
-      <i class="fa-solid fa-trash" id="del-${
-        project.id
-      }" onclick="deletProject(this)"></i>
+      <div class="form-element-wrapper">
+                        <div class="round">
+                            <input type="checkbox" id="checkbox-${
+                              project.id
+                            }" onclick="isPayed(this)"/>
+                            <label for="checkbox-${project.id}"></label>
+                          </div>
+                    </div>
       <div class="form-element-wrapper"><span class="project-date-span">${new Date(
         project.dateCreated
       ).getDate()}/${new Date(project.dateCreated).getMonth()}</span>
@@ -101,37 +108,37 @@ function addProjectLine(project) {
     project.id
   }" onclick="startTimer(this.id)"></i>
   </div>
+  <i class="fa-solid fa-trash" id="del-${
+    project.id
+  }" onclick="deletProject(this)"></i>
   </div>`;
   worksWrapper.innerHTML += projectLine;
 }
 
 function startTimer(id) {
-  if (typeof id != "number") {
-    id = id.split("-");
-    id = id[1];
-  }
+  const index = getId(id);
   const timer = {
     timerStart: new Date().getTime(),
     timerEnd: new Date().getTime(),
-    intervalId: setInterval(() => intervalFunction(id, timer), 1000),
+    intervalId: setInterval(() => intervalFunction(index, timer), 1000),
   };
-  document.getElementById(`pause-${id}`).addEventListener(
+  document.getElementById(`pause-${index}`).addEventListener(
     "click",
     function () {
       stopTimer(id, timer);
     },
     { once: true }
   );
-  const playBtn = document.getElementById(`play-${id}`);
-  const pauseBtn = document.getElementById(`pause-${id}`);
+  const playBtn = document.getElementById(`play-${index}`);
+  const pauseBtn = document.getElementById(`pause-${index}`);
   playBtn.classList.add("hide");
   pauseBtn.classList.remove("hide");
 }
 
-function intervalFunction(id, timer) {
+function intervalFunction(index, timer) {
   timer.timerEnd = new Date().getTime();
   timer.timerCalc = Math.floor((timer.timerEnd - timer.timerStart) / 1000);
-  document.getElementById(`timer-${id}`).innerText = timer.timerCalc
+  document.getElementById(`timer-${index}`).innerText = timer.timerCalc
     .toString()
     .toHHMMSS();
 }
@@ -141,28 +148,24 @@ function stopTimer(id, timer) {
   if (timer.timerCalc === undefined) {
     timer.timerCalc = 0;
   }
-  const thisProject = JSON.parse(localStorage.getItem("projectList"))
-    .filter((item) => item.id == id)
-    .pop();
-  const localList = JSON.parse(localStorage.getItem("projectList")).filter(
-    (item) => item.id != id
-  );
+  const index = getId(id);
+  const thisProject = getThisProject(id);
+  const localList = getAllWithoutThisProject(id);
   thisProject.counters.push(timer);
   localList.push(thisProject);
   localStorage.setItem("projectList", JSON.stringify(localList));
-  const playBtn = document.getElementById(`play-${id}`);
-  const pauseBtn = document.getElementById(`pause-${id}`);
+  const playBtn = document.getElementById(`play-${index}`);
+  const pauseBtn = document.getElementById(`pause-${index}`);
   playBtn.classList.remove("hide");
   pauseBtn.classList.add("hide");
-  calcTimeOnPause(id);
+  calcTimeOnPause(index);
 }
 
-function calcTimeOnPause(id) {
-  document.getElementById(`timer-${id}`).innerText = "00:00:00";
-  const thisProject = JSON.parse(localStorage.getItem("projectList"))
-    .filter((item) => item.id == id)
-    .pop();
-  document.getElementById(`sum-timer-${id}`).innerText = calcTime(thisProject);
+function calcTimeOnPause(index) {
+  document.getElementById(`timer-${index}`).innerText = "00:00:00";
+  document.getElementById(`sum-timer-${index}`).innerText = calcTime(
+    getThisProject(index)
+  );
 }
 
 function calcTime(project) {
@@ -189,12 +192,55 @@ function playPauseToggle(id) {
 }
 
 function deletProject(element) {
-  let id = element.id.split("-");
-  id = id[1];
-  const withoutProject = JSON.parse(localStorage.getItem("projectList")).filter(
-    (item) => item.id != id
+  localStorage.setItem(
+    "projectList",
+    JSON.stringify(getAllWithoutThisProject(element.id))
   );
-  localStorage.setItem("projectList", JSON.stringify(withoutProject));
-  const workLine = element.parentElement.parentElement;
+  const workLine = element.parentElement;
   workLine.remove();
+}
+
+function getAllWithoutThisProject(projectId) {
+  projectId = getId(projectId);
+  return JSON.parse(localStorage.getItem("projectList")).filter(
+    (item) => item.id != projectId
+  );
+}
+
+function getThisProject(projectId) {
+  projectId = getId(projectId);
+  return JSON.parse(localStorage.getItem("projectList"))
+    .filter((item) => item.id == projectId)
+    .pop();
+}
+
+function getId(id) {
+  if (typeof id == "string") {
+    id = id.split("-");
+    id = id[1];
+  }
+  return +id;
+}
+
+function isPayed (element) {
+    const index = getId(element.id)
+    const thisProject = getThisProject(index)
+    const otherProjects = getAllWithoutThisProject(index)
+    if (element.checked === true ) {
+        document.getElementById(`${index}`).classList.add("checked")
+        thisProject.isPayed = true
+    } else {
+        document.getElementById(`${index}`).classList.remove("checked")
+        thisProject.isPayed = false
+    }
+    otherProjects.push(thisProject)
+    localStorage.setItem("projectList", JSON.stringify(otherProjects));
+}
+
+function changePayed(project) {
+    if (project.isPayed === true) {
+        document.getElementById(project.id).classList.add("checked")
+        console.log(`checkbox-${project.id}`)
+        document.getElementById(`checkbox-${project.id}`).checked = true;
+    }
 }
