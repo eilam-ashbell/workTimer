@@ -28,12 +28,16 @@ String.prototype.toHHMMSS = function () {
 };
 
 function onPageLoad() {
+  saveSortByDate();
   const projectList = JSON.parse(localStorage.getItem("projectList"));
   if (projectList != null) {
+    worksWrapper.innerHTML = "";
     for (let proj of projectList) {
       addProjectLine(proj);
-      changePayed(proj)
+      changeAberrant(proj);
+      changePayed(proj);
     }
+    showLabels();
   }
 }
 
@@ -49,13 +53,15 @@ function Project() {
   this.id = Project.id;
   this.dateCreated = new Date().toISOString();
   this.counters = [];
-  this.isPayed = false
+  this.isPayed = false;
+  this.aberrant = { is: false, timer: 0 };
 }
 
 function add() {
   const project = new Project();
   addToLocalStorage(project);
   addProjectLine(project);
+  showLabels();
   startTimer(project.id);
   formReset();
 }
@@ -71,48 +77,6 @@ function addToLocalStorage(project) {
   }
   localStorage.setItem("projectList", JSON.stringify(projectList));
   localStorage.setItem("indexing", JSON.stringify(project.id));
-}
-
-function addProjectLine(project) {
-  const projectLine = `<div class="work-line" id="${project.id}">
-      <div class="inputs-wrapper">
-      <div class="form-element-wrapper">
-                        <div class="round">
-                            <input type="checkbox" id="checkbox-${
-                              project.id
-                            }" onclick="isPayed(this)"/>
-                            <label for="checkbox-${project.id}"></label>
-                          </div>
-                    </div>
-      <div class="form-element-wrapper"><span class="project-date-span">${new Date(
-        project.dateCreated
-      ).getDate()}/${new Date(project.dateCreated).getMonth()}</span>
-      </div>
-      <div class="form-element-wrapper"><span class="project-name-span">${
-        project.name
-      }</span>
-      </div><div class="form-element-wrapper"><span class="project-est-span" id="est-${
-        project.id
-      }">${project.estTime}</span>
-      </div><div class="form-element-wrapper"><span class="project-sum-time-span" id="sum-timer-${
-        project.id
-      }">${calcTime(project)}</span>
-      </div>
-      <div class="form-element-wrapper"><span class="project-working-time-span" id="timer-${
-        project.id
-      }">00:00:00</span>
-        </div>
-      </div><div class="form-element-wrapper"><i class="fa-solid fa-circle-pause fa-2x hide" id="pause-${
-        project.id
-      }"></i><i class="fa-solid fa-circle-play fa-2x" id="play-${
-    project.id
-  }" onclick="startTimer(this.id)"></i>
-  </div>
-  <i class="fa-solid fa-trash" id="del-${
-    project.id
-  }" onclick="deletProject(this)"></i>
-  </div>`;
-  worksWrapper.innerHTML += projectLine;
 }
 
 function startTimer(id) {
@@ -141,6 +105,7 @@ function intervalFunction(index, timer) {
   document.getElementById(`timer-${index}`).innerText = timer.timerCalc
     .toString()
     .toHHMMSS();
+  compareEstToTotal(index, timer.timerCalc);
 }
 
 function stopTimer(id, timer) {
@@ -198,6 +163,7 @@ function deletProject(element) {
   );
   const workLine = element.parentElement;
   workLine.remove();
+  showLabels();
 }
 
 function getAllWithoutThisProject(projectId) {
@@ -222,25 +188,136 @@ function getId(id) {
   return +id;
 }
 
-function isPayed (element) {
-    const index = getId(element.id)
-    const thisProject = getThisProject(index)
-    const otherProjects = getAllWithoutThisProject(index)
-    if (element.checked === true ) {
-        document.getElementById(`${index}`).classList.add("checked")
-        thisProject.isPayed = true
-    } else {
-        document.getElementById(`${index}`).classList.remove("checked")
-        thisProject.isPayed = false
-    }
-    otherProjects.push(thisProject)
-    localStorage.setItem("projectList", JSON.stringify(otherProjects));
+function isPayed(element) {
+  const index = getId(element.id);
+  const thisProject = getThisProject(index);
+  const otherProjects = getAllWithoutThisProject(index);
+  if (element.checked === true) {
+    document.getElementById(`${index}`).classList.add("checked");
+    thisProject.isPayed = true;
+  } else {
+    document.getElementById(`${index}`).classList.remove("checked");
+    thisProject.isPayed = false;
+  }
+  otherProjects.push(thisProject);
+  localStorage.setItem("projectList", JSON.stringify(otherProjects));
 }
 
 function changePayed(project) {
-    if (project.isPayed === true) {
-        document.getElementById(project.id).classList.add("checked")
-        console.log(`checkbox-${project.id}`)
-        document.getElementById(`checkbox-${project.id}`).checked = true;
-    }
+  if (project.isPayed === true) {
+    document.getElementById(project.id).classList.add("checked");
+    document
+      .getElementById(`checkbox-${project.id}`)
+      .setAttribute("checked", "true");
+  }
+}
+
+function changeAberrant(project) {
+  if (project.aberrant.is === true) {
+    document.getElementById(project.id).classList.add("aberrant");
+    document.getElementById(`compare-${project.id}`).innerText =
+      project.aberrant.timer.toString().toHHMMSS();
+  }
+}
+
+function sortByDate(item1, item2) {
+  return (
+    new Date(item1.dateCreated).getTime() -
+    new Date(item2.dateCreated).getTime()
+  );
+}
+function saveSortByDate() {
+  const projectList = JSON.parse(localStorage.getItem("projectList"));
+  const sortByDateList = projectList.sort(sortByDate);
+  localStorage.setItem("projectList", JSON.stringify(sortByDateList));
+}
+
+function handlePlayPauseBtn(element) {
+  if (event.target.tagName != element.tagName) {
+    return;
+  }
+  const index = getId(element.id);
+  if (document.getElementById(`play-${index}`).classList.contains("hide")) {
+    document.getElementById(`pause-${index}`).click();
+  } else {
+    document.getElementById(`play-${index}`).click();
+  }
+}
+
+function compareEstToTotal(id, curentTime) {
+  const estimateTime = document
+    .getElementById(`est-${id}`)
+    .innerText.split(":");
+  const totalTime = document
+    .getElementById(`sum-timer-${id}`)
+    .innerText.split(":");
+  const estInSec = estimateTime[0] * 3600 + estimateTime[1] * 60;
+  const totalInSec =
+    +totalTime[0] * 3600 + +totalTime[1] * 60 + +totalTime[2] + curentTime;
+  if (estInSec < totalInSec) {
+    document.getElementById(`compare-${id}`).style.display = "inline-block";
+    document.getElementById(`compare-${id}`).innerText = (
+      +totalInSec - estInSec
+    )
+      .toString()
+      .toHHMMSS();
+    document.getElementById(id).classList.add("aberrant");
+    const thisProject = getThisProject(id);
+    thisProject.aberrant.is = true;
+    thisProject.aberrant.timer = +totalInSec - estInSec;
+    const localList = getAllWithoutThisProject(id);
+    localList.push(thisProject);
+    localStorage.setItem("projectList", JSON.stringify(localList));
+  }
+}
+function showLabels() {
+  const labels = document.getElementsByClassName("works-labels-wrapper");
+  if (worksWrapper.innerHTML != "") {
+    labels[0].style.display = "flex";
+  } else {
+    labels[0].style.display = "none";
+  }
+}
+
+function addProjectLine(project) {
+  const projectLine = 
+  `<div class="work-line" id="${project.id}">
+     <div class="inputs-wrapper">
+       <div class="form-element-wrapper">
+         <div class="round">
+           <input type="checkbox" id="checkbox-${project.id}" onclick="isPayed(this)"/>
+           <label for="checkbox-${project.id}"></label>
+          </div>
+        </div>
+        <div class="form-element-wrapper">
+          <span class="project-date-span">${new Date(project.dateCreated).getDate()}/${new Date(project.dateCreated).getMonth()}</span>
+        </div>
+        <div class="tooltip">
+          <div class="form-element-wrapper">
+            <span class="project-name-span">${project.name}</span>
+            <span class="tooltiptext">${project.name}</span>
+          </div>
+        </div>
+        <div class="form-element-wrapper">
+          <span class="project-est-span" id="est-${project.id}">${project.estTime}</span>
+        </div>
+        <div class="form-element-wrapper">
+          <span class="project-sum-time-span" id="sum-timer-${project.id}">${calcTime(project)}</span>
+        </div>
+        <div class="form-element-wrapper">
+          <span class="project-working-time-span" id="timer-${project.id}">00:00:00</span>
+        </div>
+        <div class="form-element-wrapper">
+          <span class="project-compare-time-span" id="compare-${project.id}">00:00:00</span>
+        </div>
+      </div>
+      <div class="form-element-wrapper">
+        <button class="play-pause-btn" id="playpause-${project.id}" onclick="handlePlayPauseBtn(this)">
+          <i class="fa-solid fa-circle-pause fa-2x hide" id="pause-${project.id}"></i>
+          <i class="fa-solid fa-circle-play fa-2x" id="play-${project.id}" onclick="startTimer(this.id)"></i>
+        </button>
+      </div>
+      <i class="fa-solid fa-trash" id="del-${project.id}" onclick="deletProject(this)"></i>
+    </div>`;
+  worksWrapper.innerHTML += projectLine;
 }
