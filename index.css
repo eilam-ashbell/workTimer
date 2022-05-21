@@ -227,6 +227,9 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   color: rgb(247, 149, 111);
   cursor: pointer;
 }
+.hide {
+  display: none;
+}
 .hide::before {
   display: none;
 }
